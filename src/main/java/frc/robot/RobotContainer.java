@@ -17,16 +17,17 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.CoralSubsystem.Setpoint;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.List;
+
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -38,6 +39,7 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final CoralSubsystem m_coralSubSystem = new CoralSubsystem();
+  private final AlgaeSubsystem m_algaeSubsystem = new AlgaeSubsystem();
 
   // The driver's controller
   CommandXboxController m_driverController =
@@ -79,10 +81,12 @@ public class RobotContainer {
     m_driverController.leftStick().whileTrue(m_robotDrive.setXCommand());
 
     // Left Bumper -> Run tube intake
-    m_driverController.leftBumper().whileTrue(m_coralSubSystem.runIntakeCommand());
+    m_driverController.rightBumper().whileTrue(m_coralSubSystem.runIntakeCommand());
 
     // Right Bumper -> Run tube intake in reverse
-    m_driverController.rightBumper().whileTrue(m_coralSubSystem.reverseIntakeCommand());
+    m_driverController.leftBumper().whileTrue(m_coralSubSystem.reverseIntakeCommand());
+
+    //m_driverController.rightStick().whileTrue(m_robotDrive.slowDriveCommand());
 
     // B Button -> Elevator/Arm to human player position, set ball intake to stow
     // when idle
@@ -90,8 +94,7 @@ public class RobotContainer {
         .b()
         .onTrue(
             m_coralSubSystem
-                .setSetpointCommand(Setpoint.kFeederStation)
-                .alongWith(m_algaeSubsystem.stowCommand()));
+                .setSetpointCommand(Setpoint.kFeederStation));
 
     // A Button -> Elevator/Arm to level 2 position
     m_driverController.a().onTrue(m_coralSubSystem.setSetpointCommand(Setpoint.kLevel2));
@@ -102,6 +105,16 @@ public class RobotContainer {
     // Y Button -> Elevator/Arm to level 4 position
     m_driverController.y().onTrue(m_coralSubSystem.setSetpointCommand(Setpoint.kLevel4));
 
+    // Right Trigger -> Run ball intake, set to leave out when idle
+    m_driverController
+        .leftTrigger(OIConstants.kTriggerButtonThreshold)
+        .whileTrue(m_algaeSubsystem.runIntakeCommand());
+
+    // Left Trigger -> Run ball intake in reverse, set to stow when idle
+    m_driverController
+        .rightTrigger(OIConstants.kTriggerButtonThreshold)
+        .whileTrue(m_algaeSubsystem.reverseIntakeCommand());
+    
     // Start Button -> Zero swerve heading
     m_driverController.start().onTrue(m_robotDrive.zeroHeadingCommand());
   }
@@ -120,7 +133,7 @@ public class RobotContainer {
     // Create config for trajectory
     TrajectoryConfig config =
         new TrajectoryConfig(
-                AutoConstants.kMaxSpeedMetersPerSecond,
+                AutoConstants.kMaxSpeedMetersPerSecond / 4,
                 AutoConstants.kMaxAccelerationMetersPerSecondSquared)
             // Add kinematics to ensure max speed is actually obeyed
             .setKinematics(DriveConstants.kDriveKinematics);
@@ -131,10 +144,12 @@ public class RobotContainer {
             // Start at the origin facing the +X direction
             new Pose2d(0, 0, new Rotation2d(0)),
             // Pass through these two interior waypoints, making an 's' curve path
-            List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+            List.of(new Translation2d(1, 0), new Translation2d(1.5, 0)),
             // End 3 meters straight ahead of where we started, facing forward
-            new Pose2d(3, 0, new Rotation2d(0)),
+            new Pose2d(2.235, 0, new Rotation2d(0)),
             config);
+
+    
 
     var thetaController =
         new ProfiledPIDController(
@@ -158,6 +173,6 @@ public class RobotContainer {
     m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
 
     // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));
+    return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false ));
   }
 }

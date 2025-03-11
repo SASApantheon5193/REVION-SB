@@ -16,9 +16,6 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
-
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -47,7 +44,7 @@ public class DriveSubsystem extends SubsystemBase {
           DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
+  private final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry =
@@ -77,6 +74,8 @@ public class DriveSubsystem extends SubsystemBase {
         });
   }
 
+
+   
   /**
    * Returns the currently-estimated pose of the robot.
    *
@@ -117,7 +116,7 @@ public class DriveSubsystem extends SubsystemBase {
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
-    SwerveModuleState[] swerveModuleStates =
+    var swerveModuleStates =
         DriveConstants.kDriveKinematics.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(

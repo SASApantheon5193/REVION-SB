@@ -33,7 +33,7 @@ public final class Constants {
     }
 
     public static final class ArmSetpoints {
-      public static final double kFeederStation = 33;
+      public static final double kFeederStation = 34;
       public static final double kLevel1 = 0;
       public static final double kLevel2 = 2;
       public static final double kLevel3 = 2;
@@ -46,10 +46,28 @@ public final class Constants {
     }
   }
 
+  public static final class AlgaeSubsystemConstants {
+    public static final int kIntakeMotorCanId = 31;
+    public static final int kPivotMotorCanId = 32;
+
+    public static final class ArmSetpoints {
+      public static final double kStow = 16;
+      public static final double kHold = 11.5;
+      public static final double kDown = 0;
+    }
+
+    public static final class IntakeSetpoints {
+      public static final double kForward = 0.5;
+      public static final double kReverse = -0.5;
+      public static final double kHold = 0.25;
+    }
+  }
+
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxSpeedMetersPerSecond = 4.8/2;
+    //public static final double slowspeed = 4.8/4;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     // Chassis configuration
@@ -104,8 +122,8 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.05;
-    public static final double kTriggerButtonThreshold = 0.1;
+    public static final double kDriveDeadband = 0.1;
+    public static final double kTriggerButtonThreshold = 0.2;
   }
 
   public static final class AutoConstants {
